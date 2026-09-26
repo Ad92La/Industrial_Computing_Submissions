@@ -1,0 +1,13 @@
+[project]
+name = "exercise-2-a2a-remote"
+version = "0.1.0"
+description = "Distributed remote A2A system for exercise 2"
+requires-python = ">=3.11"
+dependencies = [
+    "fasta2a[pydantic-ai]>=0.6.1",
+    "httpx>=0.28.1",
+    "pydantic-ai-slim[openai]>=2.18.0",
+    "python-dotenv>=1.2.2",
+    "requests>=2.34.2",
+    "uvicorn>=0.51.0",
+]
