@@ -24,28 +24,65 @@ agent = Agent(
     model=model,
     name="thesis_writing_agent",
     description=(
-        "Turns a literature synthesis into a draft thesis section with explicit citation placeholders."
+        "Turns a literature synthesis into a draft thesis section "
+        "with explicit citation placeholders and uncertainty markers."
     ),
     output_type=str,
     system_prompt=(
-        "You draft a literature review section from a provided synthesis only. "
-        "Never fabricate citations, numbers, or evidence. "
-        "Use placeholders like [CITATION: AuthorYear] where needed."
+        "You are the thesis writing step in a literature-review pipeline.\n\n"
+        "You receive a literature synthesis as JSON. "
+        "Use ONLY the information contained in that synthesis. "
+        "Do not introduce external evidence, citations, statistics, "
+        "authors, or claims.\n\n"
+        "Return exactly one valid JSON object with these fields:\n"
+        "- section_purpose: string\n"
+        "- suggested_structure: array of strings\n"
+        "- draft_text: string\n"
+        "- citation_placeholders: array of strings\n"
+        "- claims_requiring_verification: array of strings\n"
+        "- missing_evidence: array of strings\n\n"
+        "Use placeholders such as [CITATION: AuthorYear] when a citation "
+        "is required but the available input does not provide enough "
+        "information to construct one.\n\n"
+        "Do not fabricate references or bibliography entries.\n"
+        "Do not use Markdown code fences around the JSON.\n"
+        "Do not add explanations before or after the JSON object."
     ),
 )
 
 
 @agent.tool_plain
-def validate_synthesis(synthesis_json: str) -> dict[str, object]:
+def validate_synthesis(
+    synthesis_json: str,
+) -> dict[str, object]:
+    """Validate the required fields of a literature synthesis."""
     try:
         data = json.loads(synthesis_json)
     except json.JSONDecodeError as exc:
-        return {"valid": False, "error": f"Invalid JSON: {exc}"}
-    required = {"themes", "converging_findings", "research_gaps"}
+        return {
+            "valid": False,
+            "error": f"Invalid JSON: {exc}",
+        }
+
     if not isinstance(data, dict):
-        return {"valid": False, "error": "Expected a JSON object."}
+        return {
+            "valid": False,
+            "error": "Expected a JSON object.",
+        }
+
+    required = {
+        "research_focus",
+        "themes",
+        "converging_findings",
+        "research_gaps",
+    }
+
     missing = sorted(required - set(data.keys()))
-    return {"valid": not missing, "missing_keys": missing}
+
+    return {
+        "valid": not missing,
+        "missing_keys": missing,
+    }
 
 
 app = agent_to_a2a(
@@ -60,8 +97,8 @@ app = agent_to_a2a(
 
 
 if __name__ == "__main__":
-    import os
     import uvicorn
+    import os
 
     uvicorn.run(
         app,
