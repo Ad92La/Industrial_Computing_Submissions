@@ -28,8 +28,9 @@ agent = Agent(
         "including metadata, research question, methodology, findings, "
         "limitations, and relevance."
     ),
-    output_type=str,
+    output_type=PaperAnalysis,
     system_prompt=(
+        "/no_think\n\n"
         "You are the paper analysis step in a thesis literature-review pipeline.\n\n"
         "Analyze ONLY the paper text provided by the user. "
         "Do not use external knowledge and do not invent information.\n\n"

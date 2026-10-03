@@ -29,6 +29,12 @@ def build_model() -> OpenAIChatModel:
         or "gpt-4o-mini"
     )
 
+    print("=== BUILD MODEL ===")
+    print(f"base_url  = {base_url}")
+    print(f"model     = {model_name}")
+    print(f"api_key   = {'***' if api_key else '(leer)'}")
+    print("===================")
+    
     return OpenAIChatModel(
         model_name,
         provider=OpenAIProvider(
